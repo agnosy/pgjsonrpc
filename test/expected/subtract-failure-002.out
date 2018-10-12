@@ -11,9 +11,9 @@ SELECT jsonrpc.execute('
   "id": 2
 }
 ');
-                                                             execute                                                              
-----------------------------------------------------------------------------------------------------------------------------------
- {"id" : "2", "jsonrpc" : "2.0", "error" : {"code" : -32601, "message" : "Function corresponding to method(subtract) not found"}}
+                                           execute                                            
+----------------------------------------------------------------------------------------------
+ {"id" : "2", "jsonrpc" : "2.0", "error" : {"code" : -32601, "message" : "Method not found"}}
 (1 row)
 
 ROLLBACK;

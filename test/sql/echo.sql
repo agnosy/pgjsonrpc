@@ -6,8 +6,6 @@ BEGIN;
 
 -- You should write your tests
 
-SELECT jsonrpc.execute('{"id":1, "method":"test"}');
-
 SELECT jsonrpc.execute('{"jsonrpc": "2.0", "id":1, "method":"echo", "params": {"message": "Hello jsonrpc!"}}');
 
 INSERT INTO jsonrpc.methods(name, description, function_name)

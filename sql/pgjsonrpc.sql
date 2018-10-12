@@ -1,5 +1,5 @@
 /*
- * Author: X
+ * Author: agnosy
  * Created at: 2018-10-12 12:22:35 +0530
  *
  */
@@ -114,10 +114,12 @@ DECLARE
     l_method_name   TEXT;
     l_function_name TEXT := '';
     l_error_context TEXT := '';
-    l_code          INTEGER;
-    l_message       TEXT;
+    l_code          INTEGER := 0;
+    l_message       TEXT    := 'Default message that should never be displayed.';
     l_data          JSON;
     l_request_count INTEGER;
+    l_request_item  JSON;
+    l_response_item JSON;
 BEGIN
     BEGIN
         l_request       := p_request::JSON;
@@ -138,29 +140,35 @@ BEGIN
         RETURN jsonrpc.get_response(l_request, l_jsonrpc, l_id, NULL, l_code, l_message);
     END;
 
-/*
     -- If the request is a non empty array, then it is batch
-    IF(substring(ltrim(l_request::TEXT), 1, 1) = '[')
+    IF(substring(regexp_replace(l_request::TEXT, '^\s+', ''), 1, 1) = '[')
     THEN
         BEGIN
             l_request_count := json_array_length(l_request);
             IF l_request_count = 0
             THEN
+                l_code := -32600;
+                l_message := 'Invalid Request';
                 RETURN jsonrpc.error_response(
                     l_request,
                     l_code,
                     l_message,
                     l_data
                 );
+            ELSE
+                l_response := '[]';
+                FOR l_request_item IN
+                    SELECT * FROM json_array_elements(l_request)
+                LOOP
+                    l_response_item := jsonrpc.execute(l_request_item::TEXT);
+                    l_response := l_response::jsonb || l_response_item::jsonb;
+                END LOOP;
+                RETURN l_response;
             END IF;
-            l_response = json_build_array(
-                jsonrpc.execute((l_request->1)::TEXT)
-            );
-            RETURN l_response;
-        EXCEPTION WHEN invalid_parameter_value THEN NULL
+        EXCEPTION
+            WHEN invalid_parameter_value THEN NULL;
         END;
     END IF;
-*/
 
     l_id            := l_request->>'id';
     l_jsonrpc       := COALESCE(l_request->>'jsonrpc', l_jsonrpc);
@@ -182,13 +190,16 @@ BEGIN
     ELSIF l_function_name IS NULL
     THEN
         l_code := -32601;
-        l_message := FORMAT(
-            'Function corresponding to method(%s) not found',
-            l_method_name
+        l_message := 'Method not found';
+        l_data := to_json(
+            FORMAT(
+                'Function corresponding to method(%s) not found',
+                l_method_name
+            )
         );
     END IF;
 
-    IF l_code IS NOT NULL OR l_message IS NOT NULL
+    IF l_code != 0
     THEN
         RETURN jsonrpc.get_response(l_request, l_jsonrpc, l_id, NULL, l_code, l_message);
     END IF;
@@ -204,10 +215,12 @@ EXCEPTION WHEN OTHERS THEN
     RAISE NOTICE 'Error Name: [%]', SQLERRM;
     RAISE NOTICE 'Error State: [%]', SQLSTATE;
     RAISE NOTICE 'Error Context: [%]', l_error_context;
+    RAISE NOTICE 'jsonrpc.execute([%]): []', p_request;
 
-    l_code := SQLSTATE;
-    l_message := SQLERRM;
+    l_code := -32099;
+    l_message := 'Exception in jsonrpc.execute(...)';
     l_data := json_build_array(
+        FORMAT('jsonrpc.execute([%s]): []', p_request),
         FORMAT('SQLSTATE: [%s]', SQLSTATE),
         FORMAT('SQLERRM: [%s]', SQLERRM),
         l_error_context

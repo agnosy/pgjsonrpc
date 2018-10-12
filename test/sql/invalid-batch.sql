@@ -7,5 +7,6 @@ BEGIN;
 -- You should write your tests
 
 SELECT jsonrpc.execute('[1]');
+SELECT jsonrpc.execute('[1,2,3]');
 
 ROLLBACK;

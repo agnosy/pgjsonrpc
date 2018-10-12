@@ -76,5 +76,5 @@ The `pgjsonrpc` data type has no dependencies other than PostgreSQL.
 Copyright and License
 ---------------------
 
-Copyright (c) 2018 X.
+Copyright (c) 2018 agnosy.
 

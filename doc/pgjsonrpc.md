@@ -15,20 +15,22 @@ Usage
 -----
 
   CREATE EXTENSION pgjsonrpc;
-  SELECT jsonrpc.execute('{"id": 1, "method": "test"}');
+  SELECT jsonrpc.execute('
+    {"id": 1, "jsonrpc": "2.0", "method": "test", "params": [1, 2, 3]}
+  ');
 
 Support
 -------
 
-  n/a.
+  N/A
 
 Author
 ------
 
-[X]
+[agnosy]
 
 Copyright and License
 ---------------------
 
-Copyright (c) 2018 X.
+Copyright (c) 2018 agnosy.
 

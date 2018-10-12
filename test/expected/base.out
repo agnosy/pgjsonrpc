@@ -1,9 +1,9 @@
 \set ECHO none
 -- You should write your tests
 SELECT jsonrpc.execute('{"id":1, "method":"test"}');
-                                                           execute                                                            
-------------------------------------------------------------------------------------------------------------------------------
- {"id" : "1", "jsonrpc" : "2.0", "error" : {"code" : -32601, "message" : "Function corresponding to method(test) not found"}}
+                                           execute                                            
+----------------------------------------------------------------------------------------------
+ {"id" : "1", "jsonrpc" : "2.0", "error" : {"code" : -32601, "message" : "Method not found"}}
 (1 row)
 
 SELECT jsonrpc.execute('{"jsonrpc": "2.0", "id":1, "method":"echo", "params": {"message": "Hello jsonrpc!"}}');

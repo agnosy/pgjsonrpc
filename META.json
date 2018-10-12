@@ -3,7 +3,7 @@
     "abstract": "A JSON-RPC 2.0 implementation",
     "description": "Implementation of JSON-RPC 2.0 as a PostgreSQL extension",
     "version": "0.0.1",
-    "maintainer": "X",
+    "maintainer": "agnosy",
     "license": "postgresql",
     "provides": {
         "pgjsonrpc": {
@@ -15,7 +15,7 @@
     },
     "release_status": "unstable",
 
-    "generated_by": "X",
+    "generated_by": "agnosy",
 
 
     "meta-spec": {
