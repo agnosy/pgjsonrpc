@@ -1,0 +1,38 @@
+\set ECHO none
+-- You should write your tests
+SELECT jsonrpc.execute('{"jsonrpc": "2.0", "method": "foobar", "id": "1"}');
+                                                            execute                                                             
+--------------------------------------------------------------------------------------------------------------------------------
+ {"id" : "1", "jsonrpc" : "2.0", "error" : {"code" : -32601, "message" : "Function corresponding to method(foobar) not found"}}
+(1 row)
+
+SELECT jsonrpc.execute('{"jsonrpc": "2.0", "method": "foobar, "params": "bar", "baz]');
+                                         execute                                          
+------------------------------------------------------------------------------------------
+ {"id" : null, "jsonrpc" : "2.0", "error" : {"code" : -32700, "message" : "Parse error"}}
+(1 row)
+
+SELECT jsonrpc.execute('{"jsonrpc": "2.0", "method": 1, "params": "bar"}');
+                                           execute                                            
+----------------------------------------------------------------------------------------------
+ {"id" : null, "jsonrpc" : "2.0", "error" : {"code" : -32600, "message" : "Invalid Request"}}
+(1 row)
+
+SELECT jsonrpc.execute('
+[
+  {"jsonrpc": "2.0", "method": "sum", "params": [1,2,4], "id": "1"},
+  {"jsonrpc": "2.0", "method"
+]
+');
+                                         execute                                          
+------------------------------------------------------------------------------------------
+ {"id" : null, "jsonrpc" : "2.0", "error" : {"code" : -32700, "message" : "Parse error"}}
+(1 row)
+
+SELECT jsonrpc.execute('[]');
+                                           execute                                            
+----------------------------------------------------------------------------------------------
+ {"id" : null, "jsonrpc" : "2.0", "error" : {"code" : -32600, "message" : "Invalid Request"}}
+(1 row)
+
+ROLLBACK;

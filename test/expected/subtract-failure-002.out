@@ -1,0 +1,19 @@
+\set ECHO none
+-- You should write your tests
+SELECT jsonrpc.execute('
+{
+  "jsonrpc": "2.0",
+  "method": "subtract",
+  "params": [
+    23,
+    42
+  ],
+  "id": 2
+}
+');
+                                                             execute                                                              
+----------------------------------------------------------------------------------------------------------------------------------
+ {"id" : "2", "jsonrpc" : "2.0", "error" : {"code" : -32601, "message" : "Function corresponding to method(subtract) not found"}}
+(1 row)
+
+ROLLBACK;

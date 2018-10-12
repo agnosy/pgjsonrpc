@@ -24,6 +24,26 @@ CREATE TABLE jsonrpc.methods (
 );
 
 -- A helper function to get the json-rpc response
+-- as json given request and result
+CREATE OR REPLACE FUNCTION jsonrpc.get_response(
+    p_request   JSON,
+    p_result    TEXT
+)
+RETURNS JSON AS
+$function$
+    SELECT json_build_object(
+        'id',
+        p_request->>'id',
+        'jsonrpc',
+        p_request->>'jsonrpc',
+        'result',
+        p_result
+    );
+$function$
+LANGUAGE sql;
+
+
+-- A helper function to get the json-rpc response
 -- as json
 CREATE OR REPLACE FUNCTION jsonrpc.get_response(
     p_jsonrpc TEXT,
@@ -64,13 +84,13 @@ LANGUAGE plpgsql;
 -- A function to execute the method specified by
 -- the request json provided as input to the
 -- function.
-CREATE OR REPLACE FUNCTION jsonrpc.execute(p_request JSON)
+CREATE OR REPLACE FUNCTION jsonrpc.execute(p_request TEXT)
 RETURNS JSON AS
 $function$
 DECLARE
-    l_params        JSON;
+    l_request       JSON;
     l_response      JSON;
-    l_jsonrpc       TEXT;
+    l_jsonrpc       TEXT := '2.0';
     l_id            TEXT;
     l_sql           TEXT;
     l_method_name   TEXT;
@@ -78,11 +98,32 @@ DECLARE
     l_error_context TEXT := '';
     l_code          INTEGER;
     l_message       TEXT;
+    l_data          JSON;
 BEGIN
-    l_id            := p_request->>'id';
-    l_jsonrpc       := p_request->>'jsonrpc';
-    l_params        := p_request->>'params';
-    l_method_name   := p_request->>'method';
+    BEGIN
+        l_request       := p_request::JSON;
+    EXCEPTION WHEN OTHERS THEN
+        GET STACKED DIAGNOSTICS l_error_context = PG_EXCEPTION_CONTEXT;
+/*
+        RAISE INFO 'Error Name: [%]', SQLERRM;
+        RAISE INFO 'Error State: [%]', SQLSTATE;
+        RAISE INFO 'Error Context: [%]', l_error_context;
+*/
+
+        l_code := -32700;
+        l_message := 'Parse error';
+        l_data := json_build_array(
+            FORMAT('SQLSTATE: [%s]', SQLSTATE),
+            FORMAT('SQLERRM: [%s]', SQLERRM),
+            l_error_context
+        );
+
+        RETURN jsonrpc.get_response(l_jsonrpc, l_id, NULL, l_code, l_message);
+    END;
+
+    l_id            := l_request->>'id';
+    l_jsonrpc       := COALESCE(l_request->>'jsonrpc', l_jsonrpc);
+    l_method_name   := l_request->>'method';
 
     SELECT function_name INTO l_function_name
     FROM jsonrpc.methods
@@ -92,11 +133,11 @@ BEGIN
     IF l_method_name IS NULL
     THEN
         l_code := -32600;
-        l_message := 'Invalid Request. Missing method.';
+        l_message := 'Invalid Request';
     ELSIF l_id IS NULL
     THEN
         l_code := -32600;
-        l_message := 'Invalid Request. Missing id';
+        l_message := 'Invalid Request';
     ELSIF l_function_name IS NULL
     THEN
         l_code := -32601;
@@ -111,7 +152,7 @@ BEGIN
         RETURN jsonrpc.get_response(l_jsonrpc, l_id, NULL, l_code, l_message);
     END IF;
 
-    l_sql := FORMAT('SELECT %s(%L)', l_function_name, p_request);
+    l_sql := FORMAT('SELECT %s(%L)', l_function_name, l_request);
 
     EXECUTE l_sql INTO l_response;
 
@@ -119,13 +160,18 @@ BEGIN
 
 EXCEPTION WHEN OTHERS THEN
     GET STACKED DIAGNOSTICS l_error_context = PG_EXCEPTION_CONTEXT;
+/*
     RAISE INFO 'Error Name: [%]', SQLERRM;
     RAISE INFO 'Error State: [%]', SQLSTATE;
     RAISE INFO 'Error Context: [%]', l_error_context;
+*/
 
     l_code := SQLSTATE;
-    l_message := FORMAT(
-        'Error Name: [%s], Error Context: [%s]', SQLERRM, l_error_context
+    l_message := SQLERRM;
+    l_data := json_build_array(
+        FORMAT('SQLSTATE: [%s]', SQLSTATE),
+        FORMAT('SQLERRM: [%s]', SQLERRM),
+        l_error_context
     );
 
     RETURN jsonrpc.get_response(l_jsonrpc, l_id, NULL, l_code, l_message);
