@@ -1,13 +1,13 @@
 {
     "name": "pgjsonrpc",
-    "abstract": "A short description",
-    "description": "A long description",
+    "abstract": "A JSON-RPC 2.0 implementation",
+    "description": "Implementation of JSON-RPC 2.0 as a PostgreSQL extension",
     "version": "0.0.1",
-    "maintainer": "The maintainer's name",
+    "maintainer": "X",
     "license": "postgresql",
     "provides": {
         "pgjsonrpc": {
-            "abstract": "A short description",
+            "abstract": "A JSON-RPC 2.0 implementation",
             "file": "sql/pgjsonrpc.sql",
             "docfile": "doc/pgjsonrpc.md",
             "version": "0.0.1"
@@ -15,7 +15,7 @@
     },
     "release_status": "unstable",
 
-    "generated_by": "The maintainer's name",
+    "generated_by": "X",
 
 
     "meta-spec": {

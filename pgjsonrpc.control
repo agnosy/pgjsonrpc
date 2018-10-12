@@ -1,4 +1,4 @@
 # pgjsonrpc extension
-comment = 'A short description'
+comment = 'A JSON-RPC 2.0 implementation'
 default_version = '0.0.1'
 relocatable = true

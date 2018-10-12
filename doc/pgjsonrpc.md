@@ -4,30 +4,31 @@ pgjsonrpc
 Synopsis
 --------
 
-  Show a brief synopsis of the extension.
+  An extension to support the JSON-RPC 2.0 specification.
 
 Description
 -----------
 
-A long description
+Implementation of JSON-RPC 2.0 specification as PostgreSQL extension.
 
 Usage
 -----
 
-  Show usage.
+  CREATE EXTENSION pgjsonrpc;
+  SELECT jsonrpc.execute('{"id": 1, "method": "test"}');
 
 Support
 -------
 
-  There is issues tracker? Github? Put this information here.
+  n/a.
 
 Author
 ------
 
-[The maintainer's name]
+[X]
 
 Copyright and License
 ---------------------
 
-Copyright (c) 2018 The maintainer's name.
+Copyright (c) 2018 X.
 

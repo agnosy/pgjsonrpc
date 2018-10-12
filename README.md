@@ -1,7 +1,7 @@
 pgjsonrpc
 =========
 
-A long description
+Implementation of JSON-RPC 2.0 as a PostgreSQL extension
 
 To build it, just do this:
 
@@ -76,5 +76,5 @@ The `pgjsonrpc` data type has no dependencies other than PostgreSQL.
 Copyright and License
 ---------------------
 
-Copyright (c) 2018 The maintainer's name.
+Copyright (c) 2018 X.
 
