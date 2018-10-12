@@ -104,11 +104,9 @@ BEGIN
         l_request       := p_request::JSON;
     EXCEPTION WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS l_error_context = PG_EXCEPTION_CONTEXT;
-/*
-        RAISE INFO 'Error Name: [%]', SQLERRM;
-        RAISE INFO 'Error State: [%]', SQLSTATE;
-        RAISE INFO 'Error Context: [%]', l_error_context;
-*/
+        RAISE NOTICE 'Error Name: [%]', SQLERRM;
+        RAISE NOTICE 'Error State: [%]', SQLSTATE;
+        RAISE NOTICE 'Error Context: [%]', l_error_context;
 
         l_code := -32700;
         l_message := 'Parse error';
@@ -160,11 +158,9 @@ BEGIN
 
 EXCEPTION WHEN OTHERS THEN
     GET STACKED DIAGNOSTICS l_error_context = PG_EXCEPTION_CONTEXT;
-/*
-    RAISE INFO 'Error Name: [%]', SQLERRM;
-    RAISE INFO 'Error State: [%]', SQLSTATE;
-    RAISE INFO 'Error Context: [%]', l_error_context;
-*/
+    RAISE NOTICE 'Error Name: [%]', SQLERRM;
+    RAISE NOTICE 'Error State: [%]', SQLSTATE;
+    RAISE NOTICE 'Error Context: [%]', l_error_context;
 
     l_code := SQLSTATE;
     l_message := SQLERRM;
