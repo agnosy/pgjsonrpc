@@ -1,49 +1,23 @@
-\set ECHO 0
+\set ECHO none
 -- You should write your tests
-SELECT pgjsonrpc('foo', 'bar');
- pgjsonrpc 
------------
- (foo,bar)
+SELECT jsonrpc.execute('{"id":1, "method":"test"}');
+                                                           execute                                                           
+-----------------------------------------------------------------------------------------------------------------------------
+ {"id" : "1", "jsonrpc" : null, "error" : {"code" : -32601, "message" : "Function corresponding to method(test) not found"}}
 (1 row)
 
-SELECT 'foo' #? 'bar' AS arrowop;
-  arrowop  
------------
- (foo,bar)
+SELECT jsonrpc.execute('{"jsonrpc": "2.0", "id":1, "method":"echo", "params": {"message": "Hello jsonrpc!"}}');
+                           execute                            
+--------------------------------------------------------------
+ {"id" : "1", "jsonrpc" : "2.0", "result" : "Hello jsonrpc!"}
 (1 row)
 
-CREATE TABLE ab (
-    a_field pgjsonrpc
-);
-INSERT INTO ab VALUES('foo' #? 'bar');
-SELECT (a_field).a, (a_field).b FROM ab;
-  a  |  b  
------+-----
- foo | bar
-(1 row)
-
-SELECT (pgjsonrpc('foo', 'bar')).a;
-  a  
------
- foo
-(1 row)
-
-SELECT (pgjsonrpc('foo', 'bar')).b;
-  b  
------
- bar
-(1 row)
-
-SELECT ('foo' #? 'bar').a;
-  a  
------
- foo
-(1 row)
-
-SELECT ('foo' #? 'bar').b;
-  b  
------
- bar
+INSERT INTO jsonrpc.methods(name, description, function_name)
+VALUES('echotest', 'Echoes the parameter passed to echo.', 'jsonrpc.echo');
+SELECT jsonrpc.execute('{"jsonrpc": "2.0", "id":1, "method":"echotest", "params": {"message": "Hello jsonrpc!"}}');
+                           execute                            
+--------------------------------------------------------------
+ {"id" : "1", "jsonrpc" : "2.0", "result" : "Hello jsonrpc!"}
 (1 row)
 
 ROLLBACK;

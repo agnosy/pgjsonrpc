@@ -1,25 +1,17 @@
-\set ECHO 0
+\set ECHO none
 BEGIN;
 \i sql/pgjsonrpc.sql
 \set ECHO all
 
 -- You should write your tests
 
-SELECT pgjsonrpc('foo', 'bar');
+SELECT jsonrpc.execute('{"id":1, "method":"test"}');
 
-SELECT 'foo' #? 'bar' AS arrowop;
+SELECT jsonrpc.execute('{"jsonrpc": "2.0", "id":1, "method":"echo", "params": {"message": "Hello jsonrpc!"}}');
 
-CREATE TABLE ab (
-    a_field pgjsonrpc
-);
+INSERT INTO jsonrpc.methods(name, description, function_name)
+VALUES('echotest', 'Echoes the parameter passed to echo.', 'jsonrpc.echo');
 
-INSERT INTO ab VALUES('foo' #? 'bar');
-SELECT (a_field).a, (a_field).b FROM ab;
-
-SELECT (pgjsonrpc('foo', 'bar')).a;
-SELECT (pgjsonrpc('foo', 'bar')).b;
-
-SELECT ('foo' #? 'bar').a;
-SELECT ('foo' #? 'bar').b;
+SELECT jsonrpc.execute('{"jsonrpc": "2.0", "id":1, "method":"echotest", "params": {"message": "Hello jsonrpc!"}}');
 
 ROLLBACK;

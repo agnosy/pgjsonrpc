@@ -1,5 +1,5 @@
 /*
- * Author: The maintainer's name
+ * Author: X
  * Created at: 2018-10-12 12:22:35 +0530
  *
  */
@@ -12,10 +12,11 @@ SET client_min_messages = warning;
 
 BEGIN;
 
--- You can use this statements as
--- template for your extension.
+-- Statements to uninstall the jsonrpc
+-- PostgreSQL extension.
 
-DROP OPERATOR #? (text, text);
-DROP FUNCTION pgjsonrpc(text, text);
-DROP TYPE pgjsonrpc CASCADE;
+DROP TABLE jsonrpc.methods;
+DROP FUNCTION jsonrpc.get_response();
+DROP FUNCTION jsonrpc.execute();
+DROP SCHEMA jsonrpc;
 COMMIT;
