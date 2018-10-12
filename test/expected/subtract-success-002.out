@@ -11,9 +11,9 @@ SELECT jsonrpc.execute('
   "id": 1
 }
 ');
-                     execute                      
---------------------------------------------------
- {"id" : "1", "jsonrpc" : "2.0", "result" : "19"}
+                    execute                     
+------------------------------------------------
+ {"id" : "1", "jsonrpc" : "2.0", "result" : 19}
 (1 row)
 
 SELECT jsonrpc.execute('
@@ -27,9 +27,9 @@ SELECT jsonrpc.execute('
   "id": 1
 }
 ');
-                      execute                      
----------------------------------------------------
- {"id" : "1", "jsonrpc" : "2.0", "result" : "-19"}
+                     execute                     
+-------------------------------------------------
+ {"id" : "1", "jsonrpc" : "2.0", "result" : -19}
 (1 row)
 
 ROLLBACK;

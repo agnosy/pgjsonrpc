@@ -5,12 +5,12 @@ BEGIN;
 CREATE FUNCTION jsonrpc.subtract(p_request JSON)
 RETURNS JSON AS
 $function$
-    SELECT jsonrpc.get_response(
+    SELECT jsonrpc.success_response(
         p_request,
         (
             (p_request->'params'->>'minuend')::BIGINT -
             (p_request->'params'->>'subtrahend')::BIGINT
-        )::TEXT
+        )
     );
 $function$
 LANGUAGE sql;

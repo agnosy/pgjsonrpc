@@ -23,29 +23,65 @@ CREATE TABLE jsonrpc.methods (
     UNIQUE (name, function_name)
 );
 
--- A helper function to get the json-rpc response
--- as json given request and result
-CREATE OR REPLACE FUNCTION jsonrpc.get_response(
+-- A helper function to construct the json-rpc success response
+CREATE OR REPLACE FUNCTION jsonrpc.success_response(
     p_request   JSON,
-    p_result    TEXT
+    p_result    ANYELEMENT
 )
 RETURNS JSON AS
 $function$
-    SELECT json_build_object(
-        'id',
-        p_request->>'id',
-        'jsonrpc',
-        p_request->>'jsonrpc',
-        'result',
-        p_result
+BEGIN
+    RETURN json_build_object(
+        'id', p_request->>'id',
+        'jsonrpc', COALESCE(p_request->>'jsonrpc', '2.0'),
+        'result', p_result
     );
+END;
 $function$
-LANGUAGE sql;
+LANGUAGE plpgsql;
 
 
--- A helper function to get the json-rpc response
--- as json
+-- A helper function to construct the json-rpc error response
+CREATE OR REPLACE FUNCTION jsonrpc.error_response(
+    p_request JSON,
+    p_code    INTEGER,
+    p_message TEXT,
+    p_data    JSON
+)
+RETURNS JSON AS
+$function$
+DECLARE
+    l_response  JSON;
+    l_error     JSON;
+BEGIN
+    IF p_data IS NULL
+    THEN
+        l_error :=
+            json_build_object(
+                'code', p_code,
+                'message', p_message
+            );
+    ELSE
+        l_error :=
+            json_build_object(
+                'code', p_code,
+                'message', p_message,
+                'data', p_data
+            );
+    END IF;
+    RETURN
+        json_build_object(
+            'id', p_request->>'id',
+            'jsonrpc', COALESCE(p_request->>'jsonrpc', '2.0'),
+            'error', l_error
+        );
+END;
+$function$
+LANGUAGE plpgsql;
+
+-- A helper function to construct the json-rpc response
 CREATE OR REPLACE FUNCTION jsonrpc.get_response(
+    p_request JSON,
     p_jsonrpc TEXT,
     p_id      TEXT,
     p_result  JSON,
@@ -54,32 +90,14 @@ CREATE OR REPLACE FUNCTION jsonrpc.get_response(
 )
 RETURNS JSON AS
 $function$
-DECLARE
-    l_response  JSON;
-    l_error     JSON;
-BEGIN
-    IF p_result IS NULL
-    THEN
-        l_error := json_build_object(
-                     'code', p_code,
-                     'message', p_message
-                   );
-        l_response := json_build_object(
-                        'id', p_id,
-                        'jsonrpc', p_jsonrpc,
-                        'error', l_error
-                      );
-    ELSE
-        l_response := json_build_object(
-                        'id', p_id,
-                        'jsonrpc', p_jsonrpc,
-                        'result', p_result
-                      );
-    END IF;
-    RETURN l_response;
-END;
+    SELECT
+        CASE
+            WHEN p_result IS NULL
+            THEN jsonrpc.error_response(p_request, p_code, p_message, NULL)
+            ELSE jsonrpc.success_response(p_request, p_result)
+        END;
 $function$
-LANGUAGE plpgsql;
+LANGUAGE sql;
 
 -- A function to execute the method specified by
 -- the request json provided as input to the
@@ -99,6 +117,7 @@ DECLARE
     l_code          INTEGER;
     l_message       TEXT;
     l_data          JSON;
+    l_request_count INTEGER;
 BEGIN
     BEGIN
         l_request       := p_request::JSON;
@@ -116,8 +135,32 @@ BEGIN
             l_error_context
         );
 
-        RETURN jsonrpc.get_response(l_jsonrpc, l_id, NULL, l_code, l_message);
+        RETURN jsonrpc.get_response(l_request, l_jsonrpc, l_id, NULL, l_code, l_message);
     END;
+
+/*
+    -- If the request is a non empty array, then it is batch
+    IF(substring(ltrim(l_request::TEXT), 1, 1) = '[')
+    THEN
+        BEGIN
+            l_request_count := json_array_length(l_request);
+            IF l_request_count = 0
+            THEN
+                RETURN jsonrpc.error_response(
+                    l_request,
+                    l_code,
+                    l_message,
+                    l_data
+                );
+            END IF;
+            l_response = json_build_array(
+                jsonrpc.execute((l_request->1)::TEXT)
+            );
+            RETURN l_response;
+        EXCEPTION WHEN invalid_parameter_value THEN NULL
+        END;
+    END IF;
+*/
 
     l_id            := l_request->>'id';
     l_jsonrpc       := COALESCE(l_request->>'jsonrpc', l_jsonrpc);
@@ -147,7 +190,7 @@ BEGIN
 
     IF l_code IS NOT NULL OR l_message IS NOT NULL
     THEN
-        RETURN jsonrpc.get_response(l_jsonrpc, l_id, NULL, l_code, l_message);
+        RETURN jsonrpc.get_response(l_request, l_jsonrpc, l_id, NULL, l_code, l_message);
     END IF;
 
     l_sql := FORMAT('SELECT %s(%L)', l_function_name, l_request);
@@ -170,7 +213,7 @@ EXCEPTION WHEN OTHERS THEN
         l_error_context
     );
 
-    RETURN jsonrpc.get_response(l_jsonrpc, l_id, NULL, l_code, l_message);
+    RETURN jsonrpc.get_response(l_request, l_jsonrpc, l_id, NULL, l_code, l_message);
 END;
 $function$
 LANGUAGE plpgsql;
@@ -183,6 +226,7 @@ CREATE OR REPLACE FUNCTION jsonrpc.echo(p_request JSON)
 RETURNS JSON AS
 $function$
     SELECT jsonrpc.get_response(
+        p_request,
         p_request->>'jsonrpc',
         p_request->>'id',
         p_request->'params'->'message',
