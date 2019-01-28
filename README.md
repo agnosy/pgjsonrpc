@@ -3,6 +3,10 @@ pgjsonrpc
 
 Implementation of JSON-RPC 2.0 as a PostgreSQL extension
 
+The skeleton of this project was generated with the help of pgxn-utils,
+packaged with pgxn_utils.  It can be installed using pgxn or gem,
+such as ```pgxn install pgxn_utils``` or ```gem install pgxn_utils```.
+
 To build it, just do this:
 
     make
