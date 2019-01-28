@@ -7,6 +7,10 @@ The skeleton of this project was generated with the help of pgxn-utils,
 packaged with pgxn_utils.  It can be installed using pgxn or gem,
 such as ```pgxn install pgxn_utils``` or ```gem install pgxn_utils```.
 
+```
+pgxn-utils skeleton pgjsonrpc
+```
+
 To build it, just do this:
 
     make
