@@ -1,0 +1,11 @@
+{
+    "jsonrpc":"2.0",
+    "method":"login",
+    "params":{
+        "partner":"Smart Telecom Inc.",
+        "username":"admin@smart-telecom.net",
+        "password":"sec1234!6"
+    },
+    "id":"1"
+}
+

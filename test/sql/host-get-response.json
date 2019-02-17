@@ -1,0 +1,17 @@
+{
+    "jsonrpc": "2.0",
+    "result": [
+        {
+            "hostid": "10084",
+            "host": "Zabbix server",
+            "interfaces": [
+                {
+                    "interfaceid": "1",
+                    "ip": "127.0.0.1"
+                }
+            ]
+        }
+    ],
+    "id": 2
+}
+

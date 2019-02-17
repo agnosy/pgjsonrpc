@@ -1,0 +1,17 @@
+{
+    "jsonrpc": "2.0",
+    "method": "host.get",
+    "params": {
+        "output": [
+            "hostid",
+            "host"
+        ],
+        "selectInterfaces": [
+            "interfaceid",
+            "ip"
+        ]
+    },
+    "id": 2,
+    "auth": "0424bd59b807674191e7d77572075f33"
+}
+

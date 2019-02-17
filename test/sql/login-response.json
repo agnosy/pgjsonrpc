@@ -1,0 +1,23 @@
+{
+    "id": "1",
+    "jsonrpc": "2.0",
+    "result": {
+        "result": {
+            "EmailAddress": "admin@smart-telecom.net",
+            "FirstLoginTime": 1464945879,
+            "FirstName": "",
+            "Flags": null,
+            "FullName": "Christine",
+            "Id": 50193,
+            "LastLoginTime": 1512383091,
+            "Name": "admin@smart-telecom.net",
+            "PartnerId": 33491,
+            "Password": null,
+            "PhoneNumber": "",
+            "RoleId": 1,
+            "Title": ""
+        }
+    },
+    "visa": "1-315208-1-1544610994--eyJhbGciOiJSUzI1HxPsImtpZCI6IjlDRkRFRDg0NDhEMzcwM0NCNTQ5QhSPATU2N0JCMDkyNTMxOEZDMUQiLCJ0eXAiOiJKV1QiLCJ4NXQiOiJuUDN0aEVqVGNEeTFTYmktVm51d2tsTVlfQjAifQ.eyJuYmYiOjE1NDQ2MTA5OTQsImV4cCI6MTU0NDYxNDU5NCwiaXNzIjoiaHR0cHM6Ly9zc28ubmF2aWdhdG9ybG9naW4uY29tIiwiYXVkIjoiaHR0cHM6Ly9zc28ubmF2aWdhdG9ybG9naW4uY29tL3Jlc291cmNlcyIsImNsaWVudF9pZCI6IjM5ZDljOWU5LTRjOWYtNGY0Mi05ZGNkLTYxZmE3YmM4NTNmNyIsInN1YiI6IjVjNGI3NDZjLTNhNTYtNGZjNy05ZjFhLTMyMWE2Yzg1NDYyYiIsImF1dGhfdGltZSI6MTU0NDYxMDk5NCwiaWRwIjoibG9jYWwiLCJzY29wZSI6WyJlbWFpbCIsIm9wZW5pZCIsInByb2ZpbGUiLCJvZmZsaW5lX2FjY2VzcyJdLCJhbXIiOlsicHdkIl19.SxwS5R7fe3WxgtpoPvaiQ66zNfOud9rHfIScX!kL9RTSTigySliFO7inysbsuad0IDuANgzngSQZLn4b4NH20O2RUfq1zbOrQHgpI_F!Yd7MiOn4nwAcspOKiHDrWuVPVVC!0!fY02H!8sZdMtDc2pn9ZCBT5uKEwylW8yJ1rCrfyjG3QQWUqKaCvP3yNp0gVtidpT7RcKl2ch68sDT78oz8G9NfFqkLrEvVQC5lAlUn5o3Gm9bknRolC4Tp!niCtF3gYV!3E8BtRUWrWC3bQX2MEOc9b5zbYxYmRTIDc1dCUdjFXspuGY3PwUqEWkjD3IaQ!wikx6yA0_bXABMggqjA-49e65e00d396f4b604829573b9e112d6063765ea62ffb4e2f88f165bb6e616e9-37205ED73352D56DC351790D584BEC45117E0E3467046E47B36F68955C1E453E-027d4d5d5f58"
+}
+
