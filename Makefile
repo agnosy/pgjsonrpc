@@ -12,7 +12,7 @@ REGRESS_OPTS = --inputdir=test --load-language=plpgsql
 #
 #MODULES      = $(patsubst %.c,%,$(wildcard src/*.c))
 PG_CONFIG    = pg_config
-PG91         = $(shell $(PG_CONFIG) --version | grep -qE " 8\.| 9\.0" && echo no || echo yes)
+PG91         = $(shell $(PG_CONFIG) --version | grep -qE " 8\.| 9\.0" && echo yes || echo no)
 
 ifeq ($(PG91),yes)
 all: sql/$(EXTENSION)--$(EXTVERSION).sql

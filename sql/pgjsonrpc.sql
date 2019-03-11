@@ -20,7 +20,7 @@ CREATE TABLE jsonrpc.methods (
     name            TEXT NOT NULL,
     description     TEXT NOT NULL,
     function_name   TEXT NOT NULL,
-    UNIQUE (name, function_name)
+    UNIQUE (name)
 );
 
 -- A helper function to construct the json-rpc success response
