@@ -2,10 +2,13 @@ EXTENSION    = pgjsonrpc
 EXTVERSION   = $(shell grep default_version $(EXTENSION).control | sed -e "s/default_version[[:space:]]*=[[:space:]]*'\([^']*\)'/\1/")
 
 DATA         = $(filter-out $(wildcard sql/*--*.sql),$(wildcard sql/*.sql))
-DOCS         = $(wildcard doc/*.md)
+# DOCS         = $(wildcard doc/*.md)
+DOCS         = doc/$(EXTENSION).md
 TESTS        = $(wildcard test/sql/*.sql)
 REGRESS      = $(patsubst test/sql/%.sql,%,$(TESTS))
-REGRESS_OPTS = --inputdir=test --load-language=plpgsql
+# REGRESS_OPTS = --inputdir=test --load-language=plpgsql
+REGRESS_OPTS = --inputdir=test
+
 #
 # Uncoment the MODULES line if you are adding C files
 # to your extention.
