@@ -10,9 +10,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    container: pgxn/pgxn-tools
 
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: make
+      - run: pg-start 15
+      - uses: actions/checkout@v4
+      - run: pg-build-test
