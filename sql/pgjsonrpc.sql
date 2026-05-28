@@ -32,7 +32,7 @@ RETURNS JSON AS
 $function$
 BEGIN
     RETURN json_build_object(
-        'id', p_request->>'id',
+        'id', p_request->'id',
         'jsonrpc', COALESCE(p_request->>'jsonrpc', '2.0'),
         'result', p_result
     );
@@ -71,7 +71,7 @@ BEGIN
     END IF;
     RETURN
         json_build_object(
-            'id', p_request->>'id',
+            'id', p_request->'id',
             'jsonrpc', COALESCE(p_request->>'jsonrpc', '2.0'),
             'error', l_error
         );
@@ -125,9 +125,9 @@ BEGIN
         l_request       := p_request::JSON;
     EXCEPTION WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS l_error_context = PG_EXCEPTION_CONTEXT;
-        RAISE NOTICE 'Error Name: [%]', SQLERRM;
-        RAISE NOTICE 'Error State: [%]', SQLSTATE;
-        RAISE NOTICE 'Error Context: [%]', l_error_context;
+        RAISE LOG 'Error Name: [%]', SQLERRM;
+        RAISE LOG 'Error State: [%]', SQLSTATE;
+        RAISE LOG 'Error Context: [%]', l_error_context;
 
         l_code := -32700;
         l_message := 'Parse error';
@@ -141,33 +141,29 @@ BEGIN
     END;
 
     -- If the request is a non empty array, then it is batch
-    IF(substring(regexp_replace(l_request::TEXT, '^\s+', ''), 1, 1) = '[')
+    IF json_typeof(l_request) = 'array'
     THEN
-        BEGIN
-            l_request_count := json_array_length(l_request);
-            IF l_request_count = 0
-            THEN
-                l_code := -32600;
-                l_message := 'Invalid Request';
-                RETURN jsonrpc.error_response(
-                    l_request,
-                    l_code,
-                    l_message,
-                    l_data
-                );
-            ELSE
-                l_response := '[]';
-                FOR l_request_item IN
-                    SELECT * FROM json_array_elements(l_request)
-                LOOP
-                    l_response_item := jsonrpc.execute(l_request_item::TEXT);
-                    l_response := l_response::jsonb || l_response_item::jsonb;
-                END LOOP;
-                RETURN l_response;
-            END IF;
-        EXCEPTION
-            WHEN invalid_parameter_value THEN NULL;
-        END;
+        l_request_count := json_array_length(l_request);
+        IF l_request_count = 0
+        THEN
+            l_code := -32600;
+            l_message := 'Invalid Request';
+            RETURN jsonrpc.error_response(
+                l_request,
+                l_code,
+                l_message,
+                NULL
+            );
+        ELSE
+            l_response := '[]';
+            FOR l_request_item IN
+                SELECT * FROM json_array_elements(l_request)
+            LOOP
+                l_response_item := jsonrpc.execute(l_request_item::TEXT);
+                l_response := l_response::jsonb || l_response_item::jsonb;
+            END LOOP;
+            RETURN l_response;
+        END IF;
     END IF;
 
     l_id            := l_request->>'id';
@@ -204,7 +200,11 @@ BEGIN
         RETURN jsonrpc.get_response(l_request, l_jsonrpc, l_id, NULL, l_code, l_message);
     END IF;
 
-    l_sql := FORMAT('SELECT %s(%L)', l_function_name, l_request);
+    l_sql := FORMAT('SELECT %I.%I(%L)',
+        split_part(l_function_name, '.', 1),
+        split_part(l_function_name, '.', 2),
+        l_request
+    );
 
     EXECUTE l_sql INTO l_response;
 
@@ -212,10 +212,10 @@ BEGIN
 
 EXCEPTION WHEN OTHERS THEN
     GET STACKED DIAGNOSTICS l_error_context = PG_EXCEPTION_CONTEXT;
-    RAISE NOTICE 'Error Name: [%]', SQLERRM;
-    RAISE NOTICE 'Error State: [%]', SQLSTATE;
-    RAISE NOTICE 'Error Context: [%]', l_error_context;
-    RAISE NOTICE 'jsonrpc.execute([%]): []', p_request;
+    RAISE LOG 'Error Name: [%]', SQLERRM;
+    RAISE LOG 'Error State: [%]', SQLSTATE;
+    RAISE LOG 'Error Context: [%]', l_error_context;
+    RAISE LOG 'jsonrpc.execute([%]): %', p_request, SQLERRM;
 
     l_code := -32099;
     l_message := 'Exception in jsonrpc.execute(...)';
