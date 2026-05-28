@@ -1,0 +1,30 @@
+#!/bin/sh
+# Validates the commit subject line against the Conventional Commits specification.
+# Activate with: git config core.hooksPath .githooks
+
+commit_file="$1"
+subject=$(head -1 "$commit_file")
+
+# Skip merge commits and fixup/squash commits
+case "$subject" in
+    Merge\ *|Revert\ \"*|fixup\!\ *|squash\!\ *)
+        exit 0
+        ;;
+esac
+
+pattern='^(feat|fix|refactor|perf|test|docs|ci|chore|style|revert|build)(\([a-zA-Z0-9_/,-]+\))?!?: .+'
+
+if ! echo "$subject" | grep -qE "$pattern"; then
+    echo ""
+    echo "  Commit message does not follow Conventional Commits."
+    echo ""
+    echo "  Required format:  <type>(<scope>): <description>"
+    echo "  Example:          fix(response): preserve id field type from request"
+    echo ""
+    echo "  Types: feat fix refactor perf test docs ci chore style revert build"
+    echo "  Scope: optional — dispatch batch registry response test ci docs"
+    echo ""
+    echo "  Your subject: $subject"
+    echo ""
+    exit 1
+fi

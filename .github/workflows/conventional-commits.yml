@@ -1,0 +1,40 @@
+name: Conventional Commits
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit messages
+        run: |
+          pattern='^(feat|fix|refactor|perf|test|docs|ci|chore|style|revert|build)(\([a-zA-Z0-9_/,-]+\))?!?: .+'
+          failed=0
+
+          while IFS= read -r subject; do
+            # Skip merge commits and fixup/squash commits
+            case "$subject" in
+              Merge\ *|Revert\ \"*|fixup\!\ *|squash\!\ *) continue ;;
+            esac
+
+            if ! echo "$subject" | grep -qE "$pattern"; then
+              echo "FAIL: $subject"
+              failed=1
+            else
+              echo "OK:   $subject"
+            fi
+          done < <(git log "origin/${{ github.base_ref }}..HEAD" --format=%s)
+
+          if [ "$failed" -eq 1 ]; then
+            echo ""
+            echo "One or more commit messages do not follow Conventional Commits."
+            echo "Required format: <type>(<scope>): <description>"
+            echo "Types: feat fix refactor perf test docs ci chore style revert build"
+            exit 1
+          fi
